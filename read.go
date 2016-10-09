@@ -19,7 +19,6 @@ import (
 	"errors"
 	"os"
 	"strings"
-	"unicode"
 )
 
 // _read is the base to read a file and get the configuration representation.
@@ -59,7 +58,7 @@ func (c *Config) read(buf *bufio.Reader) (err error) {
 	var section, option string
 	var scanner = bufio.NewScanner(buf)
 	for scanner.Scan() {
-		l := strings.TrimRightFunc(stripComments(scanner.Text()), unicode.IsSpace)
+		l := strings.TrimSpace(stripComments(scanner.Text()))
 
 		// Switch written for readability (not performance)
 		switch {
@@ -75,7 +74,7 @@ func (c *Config) read(buf *bufio.Reader) (err error) {
 
 		// Continuation of multi-line value
 		// starts with whitespace, we're in a section and working on an option
-		case section != "" && option != "" && (l[0] == ' ' || l[0] == '\t'):
+		case section != "" && option != "":
 			prev, _ := c.RawString(section, option)
 			value := strings.TrimSpace(l)
 			c.AddOption(section, option, prev+"\n"+value)
